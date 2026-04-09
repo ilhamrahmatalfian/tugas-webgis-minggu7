@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini WebGIS - Tugas TSPD 24</title>
+    <style>
+      /* CSS Dasar buat map dan layout */
+      #map {
+        width: 100%;
+        height: 400px;
+        background: linear-gradient(to bottom, lightblue, lightgreen);
+        position: relative;
+        border: 1px solid #ccc;
+        overflow: hidden;
+      }
+
+      .marker {
+        width: 15px;
+        height: 15px;
+        position: absolute;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Class ini dipakai buat nyembunyiin layer marker pas ditoggle */
+      .hide-layer .marker {
+        display: none;
+      }
+
+      .controls {
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #f4f4f4;
+        border-radius: 5px;
+      }
+
+      button {
+        margin-right: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Mini WebGIS</h2>
+
+    <div class="controls">
+      <strong>Add Markers:</strong>
+      <button id="btnAddRed" style="color: red">Red</button>
+      <button id="btnAddBlue" style="color: blue">Blue</button>
+      <button id="btnAddYellow" style="color: #b58900">Yellow</button>
+      |
+      <strong>Tools:</strong>
+      <button id="btnClear">Clear All Markers</button>
+      <button id="btnToggleLayer">Toggle Marker Layer</button>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+      const map = document.getElementById("map");
+      let markersArray = []; // Buat nampung marker biar gampang dihapus nanti
+
+      // Class OOP buat marker
+      class Marker {
+        constructor(x, y, colorType) {
+          this.element = document.createElement("div");
+          this.element.className = "marker";
+
+          this.element.style.left = x + "px";
+          this.element.style.top = y + "px";
+          this.element.style.backgroundColor = colorType;
+          this.color = colorType;
+
+          this.element.addEventListener("click", () => this.onClick());
+        }
+
+        onClick() {
+          alert(`Marker diklik! Warnanya: ${this.color}`);
+        }
+
+        addTo(mapContainer) {
+          mapContainer.appendChild(this.element);
+          markersArray.push(this);
+        }
+
+        removeFrom(mapContainer) {
+          mapContainer.removeChild(this.element);
+        }
+      }
+
+      // Fungsi biar markernya muncul di posisi random area map
+      function spawnRandomMarker(color) {
+        let randomX = Math.random() * (map.clientWidth - 15);
+        let randomY = Math.random() * 385;
+
+        let newMarker = new Marker(randomX, randomY, color);
+        newMarker.addTo(map);
+      }
+
+      // --- Event Listeners ---
+
+      // 1. Tambah marker dengan warna beda-beda
+      document.getElementById("btnAddRed").addEventListener("click", () => spawnRandomMarker("red"));
+      document.getElementById("btnAddBlue").addEventListener("click", () => spawnRandomMarker("blue"));
+      document.getElementById("btnAddYellow").addEventListener("click", () => spawnRandomMarker("yellow"));
+
+      // 2. Fitur hapus semua marker
+      document.getElementById("btnClear").addEventListener("click", function () {
+        markersArray.forEach((marker) => marker.removeFrom(map));
+        markersArray = []; // reset arraynya
+      });
+
+      // 3. Fitur nyalain/matiin layer marker
+      document.getElementById("btnToggleLayer").addEventListener("click", function () {
+        map.classList.toggle("hide-layer");
+      });
+    </script>
+  </body>
+</html>
